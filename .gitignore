@@ -1,0 +1,5 @@
+# Ignores all files in __pycache__ folder
+__pycache__/
+# Project exclude paths
+/venv/
+.idea/
