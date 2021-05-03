@@ -7,7 +7,6 @@ from fastapi import FastAPI, File, UploadFile, Form
 import uvicorn
 from pydantic import BaseModel
 from model.gooddy import Translator
-import pandas as pd
 from utils.parse_csv import convert_file_to_df, parse_csv
 
 LOADED_MODEL = Translator()

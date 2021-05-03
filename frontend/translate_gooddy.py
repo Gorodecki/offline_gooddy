@@ -1,7 +1,7 @@
 import requests
 import streamlit as st
 import pandas as pd
-from typing import Text, Optional, Hashable
+from typing import Text
 from utils.streamlit_dl_button import download_button
 
 
@@ -14,7 +14,7 @@ def fetch_response(message: Text):
     payload = {
         "text": message
     }
-    res = requests.post(f"http://0.0.0.0:8000/predict/", json=payload) #TODO: link "service" not hardcore
+    res = requests.post(f"http://service:8000/predict/", json=payload) #TODO: link "service" not hardcore
     return res.json()['Translate']
 
 

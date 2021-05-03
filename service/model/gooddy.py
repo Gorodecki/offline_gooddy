@@ -21,7 +21,7 @@ class Translator():
     def __init__(self):
         # TODO: inference on GPU, batch
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        self.mname = "../data/wmt19-en-ru/"
+        self.mname = "data/wmt19-en-ru/"
         self.model = AutoModelForSeq2SeqLM.from_pretrained(self.mname)
         self.tokenizer = AutoTokenizer.from_pretrained(self.mname)
 
@@ -75,7 +75,7 @@ class Translator():
         # В тексте находим слова длиннее 50 символов и заменяет на ""
         text = ' '.join([x if len(x) < 50 else '' for x in text.split()])
         # Все символы "|" Заменяем на точку
-        text = re.sub(r"\|", ".", text)
+        text = re.sub(r"\|", "", text)
         # Разбиваем текст на предложения
         ls_in = self.split_into_sentences(text)
         ls_out = []
