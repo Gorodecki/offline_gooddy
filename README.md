@@ -1,0 +1,1 @@
+Project for translate text in EXCEL file without Internet connection and without restrictions on the volume of the text.

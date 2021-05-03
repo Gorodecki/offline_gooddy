@@ -1,11 +1,7 @@
-import pandas as pd
 import torch
-import nltk
 import re
 from num2words import num2words
-from transformers import FSMTTokenizer, FSMTForConditionalGeneration
-
-nltk.download('punkt')
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 
 def my_replace(match):
@@ -23,10 +19,11 @@ class Translator():
     """
 
     def __init__(self):
-        self.device = 'cuda' if torch.cuda.is_avialible() else 'cpu'
-        self.mname = "facebook/wmt19-en-ru"
-        self.model = FSMTForConditionalGeneration.from_pretrained(self.mname)
-        self.tokenizer = FSMTTokenizer.from_pretrained(self.mname)
+        # TODO: inference on GPU, batch
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.mname = "../data/wmt19-en-ru/"
+        self.model = AutoModelForSeq2SeqLM.from_pretrained(self.mname)
+        self.tokenizer = AutoTokenizer.from_pretrained(self.mname)
 
         # Для метода split_into_sentences()
         self.alphabets = "([A-Za-z])"
@@ -41,7 +38,6 @@ class Translator():
         split_into_sentences(text) --> [sentence1,sentence2,sentence3,...]
         Данный метод разбивает англ. текст на предложения
         """
-
         text = " " + text + "  "
         text = text.replace("\n", " ")
         text = re.sub(self.prefixes, "\\1<prd>", text)

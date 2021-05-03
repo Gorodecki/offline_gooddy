@@ -3,3 +3,5 @@ __pycache__/
 # Project exclude paths
 /venv/
 .idea/
+.idea
+/data/wmt19-en-ru/

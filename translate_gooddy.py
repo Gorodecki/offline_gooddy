@@ -1,14 +1,42 @@
+import requests
 import streamlit as st
 import pandas as pd
-import time
+from typing import Text, Optional, Hashable
+from utils.streamlit_dl_button import download_button
 
 
-def write_header():
-    st.title('Offline Gooddy')
-    st.write(f'Загрузите файл CSV, XLSX.')
+def fetch_response(message: Text):
+    # TODO: async response for faster translate
+    """ Forward response to FastAPI for translate text.
+    text -> text
+    """
+    message = str(message)
+    payload = {
+        "text": message
+    }
+    res = requests.post(f"http://0.0.0.0:8000/predict/", json=payload) #TODO: link "service" not hardcore
+    return res.json()['Translate']
+
+
+def translate_file(df: pd.DataFrame, translate_columns: list):
+    """ Translate current columns in DataFrame"""
+    if translate_columns:
+        for column in translate_columns:
+            column = str(column)
+            new_column = column + "_translate"
+            # visible message
+            with st.spinner(f'Переводится столбец {column} ожидайте...'):
+                # visible progress
+                my_bar = st.progress(0.0) # TODO: restart progressbar
+                for i, row in df.iterrows():
+                    # translate
+                    df.loc[i, new_column] = fetch_response(row[column])
+                    my_bar.progress(i/df.shape[0])
+    return df
 
 
 def load_files(uploaded_file):
+    """ Convert file to DataFrame"""
     if uploaded_file is not None:
         if uploaded_file.name.endswith(".csv"):
             st.success("Загружается файл в формате CSV")
@@ -21,28 +49,37 @@ def load_files(uploaded_file):
             st.stop()
 
 
-def write_gui():
+def write_header():
+    """Create header"""
+    st.title('Offline Gooddy')
+    st.write(f'Загрузите файл CSV, XLSX.')
+
+
+def main():
+    """ Create main UI"""
     uploaded_file = st.file_uploader("Выберите файл", type=["csv", "xlsx", "xls"])
     if uploaded_file is None:
         st.warning("Загрузите файл")
         st.stop()
+
+    # load and view data
     dataframe = load_files(uploaded_file)
     st.dataframe(dataframe.head())
 
+    # select column for translate
     translate_columns = st.multiselect('Выберите столбец для перевода на русский язык',
                                        list(dataframe.columns))
+    # visible button if select column(-s)
     if len(translate_columns) > 0:
         if st.button('Перевести'):
-            _ = translate_file(dataframe, translate_columns)
+            out_file = translate_file(dataframe, translate_columns)
+            # oho-ho-ho
             st.balloons()
-
-
-def translate_file(df, translate_columns):
-    my_bar = st.progress(0)
-    for percent_complete in range(100):
-        time.sleep(0.1)
-        my_bar.progress(percent_complete + 1)
-    return df
+            tmp_download_link = download_button(out_file,
+                                                f"{uploaded_file.name.replace('.xlsx', '').replace('.xls', '').replace('.csv', '')}_translate.csv",
+                                                button_text='Нажмите здесь для загрузки файла!')
+            st.markdown(tmp_download_link, unsafe_allow_html=True)
+            # TODO: view translated columns
 
 
 if __name__ == '__main__':
@@ -52,4 +89,4 @@ if __name__ == '__main__':
         layout="wide"
     )
     write_header()
-    write_gui()
+    main()
