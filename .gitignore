@@ -4,4 +4,4 @@ __pycache__/
 /venv/
 .idea/
 .idea
-/data/wmt19-en-ru/
+/service/data/wmt19-en-ru/
